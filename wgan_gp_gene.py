@@ -172,6 +172,7 @@ class WGAN_LangGP():
                 real_data = to_var(real_data)
 
                 d_fake_err, d_real_err, gradient_penalty = self.disc_train_iteration(real_data)
+                d_err = d_fake_err - d_real_err + gradient_penalty
 
                 # Append things for logging
                 d_fake_np, d_real_np, gp_np = d_fake_err.cpu().numpy(), \
@@ -187,11 +188,11 @@ class WGAN_LangGP():
                     G_losses.append((g_err.data).cpu().numpy())
 
                 if counter % 100 == 99:
-                    self.save_model(i)
-                    self.sample(i)
+                    self.save_model(counter)
+                    self.sample(counter)
                 if counter % 10 == 9:
                     summary_str = 'Iteration [{}/{}] - loss_d: {}, loss_g: {}, w_dist: {}, grad_penalty: {}'\
-                        .format(i, total_iterations, (d_err.data).cpu().numpy(),
+                        .format(counter, total_iterations, (d_err.data).cpu().numpy(),
                         (g_err.data).cpu().numpy(), ((d_real_err - d_fake_err).data).cpu().numpy(), gp_np)
                     print(summary_str)
                     losses_f.write(summary_str)
